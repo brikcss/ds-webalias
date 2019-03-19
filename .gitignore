@@ -12,5 +12,9 @@ node_modules
 
 # Build files
 /dist
+/lib
+/browser
+/module
+/umd
 /.temp
 /.shots/current

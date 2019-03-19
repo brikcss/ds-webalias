@@ -1,20 +1,30 @@
 /*! .browsersyncrc.js | @author Brikcss (https://github.com/brikcss) | @reference (https://www.browsersync.io/docs/options) */
 
 module.exports = {
+  // server: ['examples', 'src'],
   server: {
-    baseDir: '.',
-    directory: false
+    baseDir: '.'
+    // directory: true,
     // index: 'index.html',
-    // routes: {}
+    // routes: {
+    //   '/examples': '/'
+    // }
   },
-  startPath: null,
-  files: ['dist'],
-  ignore: ['src/**/*', '**/*.spec.js', './*.json', './.*'],
-  single: false,
-  watch: true,
+  // rewriteRules: [{
+  //   match: '/src',
+  //   replace: ''
+  // }],
+  startPath: 'examples/module',
+  // proxy: 'samspace.localhost:8080',
+  files: ['examples', 'browser', 'module', 'umd'],
+  // serveStatic: ['examples', 'src'],
   watchEvents: ['add', 'change', 'unlink'],
-  watchTask: true,
+  watch: true,
+  ignore: [],
+  // single: false,
+  // watchOptions: undefined,
   injectChanges: true,
+  ui: false,
   ghostMode: {
     clicks: false,
     scroll: false,
@@ -41,7 +51,6 @@ module.exports = {
       'background-color': 'rgba(0, 0, 0, .6)'
     }
   },
-  hostnameSuffix: false,
   scrollProportionally: false,
   scrollThrottle: 100,
   scrollRestoreTechnique: 'window.name',

@@ -80,6 +80,17 @@ class WebAlias extends LitElement {
   }
 
   /**
+   * Mechanism to get property from webalias data using the normalized property name.
+   * @param  {String} prop  Property name to retrieve.
+   * @param  {Object} webalias  Webalias data.
+   * @return {Any}  Property value.
+   */
+  static getProp (prop, webalias = WebAlias.activeWebalias) {
+    const key = WebAlias.propsMap[prop]
+    return typeof key === 'function' ? key(WebAlias.activeWebalias) : WebAlias.activeWebalias[key]
+  }
+
+  /**
    * LitElement styles property.
    * @return  {Function}  CSS tagged template literal.
    */
@@ -131,6 +142,19 @@ class WebAlias extends LitElement {
   }
 
   /**
+   * Normalizes WebAlias.activeWebalias.
+   * @return {Object}  Normalized WebAlias.activeWebalias.
+   */
+  static normalize (webalias = WebAlias.activeWebalias) {
+    // Return the normalized webalias user data.
+    return Object.keys(WebAlias.propsMap).reduce((data, prop) => {
+      const key = WebAlias.propsMap[prop]
+      data[prop] = typeof key === 'function' ? key(webalias) : webalias[key]
+      return data
+    }, {})
+  }
+
+  /**
    * LitElement lifecycle. Called the first time this instance is updated.
    * @param  {Map} changedProps  Map of changed properties.
    */
@@ -160,30 +184,49 @@ class WebAlias extends LitElement {
     // If cached data exists, use it.
     } else if (WebAlias.activeWebalias) {
       this.updateContent()
-    // Otherwise, fetch webalias data and cache it.
+    // If webalias exists in localStorage, use it (this offers a quicker UI update). Then fetch
+    // latest webalias data in background and cache it to localStorage.
     } else {
-      WebAlias.activeWebalias = fetch(`https://api2.directscale${this.env}.com/api/Repsite/GetCustomerSite?webAlias=${this.webalias}`, {
-        headers: {
-          ApplicationUrl: `https://${this.webalias}.${this.client}.directscale${this.env}.com`
+      // First check local storage and update UI if correct webalias data already exists...
+      if (window.localStorage.webalias) {
+        const webalias = WebAlias.normalize(JSON.parse(window.localStorage.webalias))
+        if (webalias && webalias.webalias && webalias.webalias.toLowerCase() === this.webalias.toLowerCase()) {
+          WebAlias.activeWebalias = webalias
+          this.updateContent()
         }
-      }).then(response => response.json()).then(result => {
-        // Normalize data.
-        WebAlias.activeWebalias = Object.keys(WebAlias.propsMap).reduce((data, prop) => {
-          const key = WebAlias.propsMap[prop]
-          data[prop] = typeof key === 'function' ? key(result) : result[key]
-          return data
-        }, {})
+      }
+      // Now fetch up-to-date data and update the UI.
+      const promise = this.fetchWebalias().then(webalias => {
+        window.localStorage.webalias = JSON.stringify(webalias)
+        WebAlias.activeWebalias = WebAlias.normalize(webalias)
         this.updateContent()
-        return WebAlias.activeWebalias
+        return webalias
       })
+      if (!WebAlias.activeWebalias) WebAlias.activeWebalias = promise
     }
+  }
+
+  /**
+   * Fetch webalias user data from API2 database.
+   * @return {Object}  Normalized webalias user data.
+   */
+  fetchWebalias () {
+    return fetch(`https://api2.directscale${this.env}.com/api/Repsite/GetCustomerSite?webAlias=${this.webalias}`, {
+      headers: {
+        ApplicationUrl: `https://${this.webalias}.${this.client}.directscale${this.env}.com`
+      }
+    }).then(response => response.json())
   }
 
   /**
    * Update this.content with the configured webalias data property.
    */
   updateContent () {
-    this.content = WebAlias.activeWebalias && WebAlias.activeWebalias[this.prop] ? WebAlias.activeWebalias[this.prop] : ''
+    if (!WebAlias.activeWebalias || !WebAlias.activeWebalias[this.prop]) {
+      this.content = ''
+      return
+    }
+    this.content = WebAlias.activeWebalias[this.prop]
   }
 
   /**

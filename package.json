@@ -1,9 +1,9 @@
 {
   "name": "@brikcss/ds-webalias",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A DirectScale, Inc. module which turns any site into a replicated site, using the DirectScale webalias.",
   "dependencies": {
-    "@brikcss/element": "^0.1.3",
+    "@brikcss/element": "^0.1.4",
     "hyperhtml": "^2.25.4"
   },
   "devDependencies": {
@@ -36,11 +36,13 @@
   "main": "dist/esm/webalias.js",
   "module": "dist/esm/webalias.js",
   "browser": "dist/umd/webalias.js",
-  "keywords": ["brikcss"],
+  "keywords": ["brikcss", "webalias", "replicate", "replication"],
   "author": "Brikcss (https://github.com/brikcss)",
+  "homepage": "https://github.com/brikcss/ds-webalias",
+  "bugs": "https://github.com/brikcss/ds-webalias/issues",
   "license": "MIT",
   "publishConfig": {
-    "tag": "dev",
+    "tag": "next",
     "access": "public"
   }
 }

@@ -4,7 +4,7 @@ module.exports = {
   // server: ['examples', 'src'],
   server: {
     baseDir: '.'
-    // directory: true,
+    // directory: true
     // index: 'index.html',
     // routes: {
     //   '/examples': '/'
@@ -14,9 +14,9 @@ module.exports = {
   //   match: '/src',
   //   replace: ''
   // }],
-  startPath: 'examples/module',
+  startPath: 'examples/esm',
   // proxy: 'samspace.localhost:8080',
-  files: ['examples', 'browser', 'module', 'umd'],
+  files: ['examples', 'dist', 'src'],
   // serveStatic: ['examples', 'src'],
   watchEvents: ['add', 'change', 'unlink'],
   watch: true,

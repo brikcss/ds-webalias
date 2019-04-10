@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <title>Replication</title>
+  <title>Replication - Webalias module</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -21,21 +21,23 @@
       margin-bottom: 40px;
     }
   </style>
-  <script src="../../node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
 </head>
 
 <body>
   <div class="container">
-    <web-alias prop="name" prefix="Hello, " suffix="!"></web-alias>
-    <web-alias prop="profileImage" display="block"></web-alias>
+    <web-alias prop="name" before="Hello, " after="!"></web-alias>
+    <web-alias prop="image" display="block"></web-alias>
     <web-alias prop="email"></web-alias>
     <web-alias prop="phone"></web-alias>
     <div>
-      <web-alias prop="city" suffix=", "></web-alias><web-alias prop="state"></web-alias>
+      <web-alias prop="city" after=", "></web-alias><web-alias prop="state"></web-alias>
     </div>
     <web-alias prop="company"></web-alias>
   </div>
 
-  <script type="module" src="app.js"></script>
+  <!-- 1. Include custom elements polyfill. -->
+  <script src="../../node_modules/document-register-element/build/document-register-element.js"></script>
+  <!-- 2. Include app.js with type="module". -->
+  <script type="module" src="app.js" defer></script>
 </body>
 </html>

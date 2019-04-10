@@ -9,7 +9,7 @@ module.exports = {
     'scope-case': [1, 'always', 'kebab-case'],
     'subject-case': [1, 'always', 'sentence-case'],
     'subject-empty': [2, 'never'],
-    'subject-full-stop': [2, 'always', '.'],
+    'subject-full-stop': [1, 'always', '.'],
     'type-enum': [
       2,
       'always',

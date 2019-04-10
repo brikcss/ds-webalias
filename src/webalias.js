@@ -1,49 +1,27 @@
-/*! webalias.js | @author Brikcss (https://github.com/brikcss) */
 /* globals fetch */
 
 // -------------------------------------------------------------------------------------------------
 // Imports.
 //
 
-import { LitElement, html, css, unsafeCSS } from 'lit-element'
+import BrikElement from '@brikcss/element'
+import { hyper } from 'hyperhtml'
 
 // -------------------------------------------------------------------------------------------------
 // WebAlias.
 //
 
-class WebAlias extends LitElement {
-  /**
-   * WebAlias Constructor.
-   * @param  {Array} args  Arguments array.
-   */
-  constructor (...args) {
-    super(args)
-    if (!WebAlias.initialized) WebAlias.checkUrl()
-    this.prefix = ''
-    this.suffix = ''
-  }
-
-  /**
-   * LitElement properties.
-   * @return {Object}
-   */
-  static get properties () {
-    return {
-      webalias: { type: String },
-      client: { type: String },
-      prop: { type: String },
-      content: { type: String, reflect: false },
-      prefix: { type: String },
-      suffix: { type: String },
-      display: { type: String }
-    }
+class WebAlias extends BrikElement {
+  static get observedAttributes () {
+    return ['prop', 'before', 'after', 'display']
   }
 
   /**
    * Map of WebAlias properties to return data.
-   * @return {Object}  Each property can be a String, which maps to a property for the return
-   *     webalias data; or a Function, which runs with the return data passed as a function
-   *     parameter.
+   * @return {Object}  Each property can be a String or Function. A String will map to a property in
+   *     the returned webalias data. A Function can be used for a computed property, or to wrap a
+   *     property value in other code. A Function receives `data` as a parameter, which is the
+   *     returned webalias data.
    */
   static get propsMap () {
     return {
@@ -60,7 +38,8 @@ class WebAlias extends LitElement {
       about: 'AboutMe',
       company: 'Company',
       language: 'MemberLanguage',
-      profileImage: (data) => html`<img src="${data.ImageUrl}" alt="${WebAlias.propsMap.name(data)}" />`,
+      imageUrl: 'ImageUrl',
+      image: (data) => () => hyper()([`<img src="${data.ImageUrl}" alt="${WebAlias.propsMap.name(data)}" />`]),
       imageData: 'ImageData',
       facebook: 'Facebook',
       twitter: 'Twitter',
@@ -80,32 +59,6 @@ class WebAlias extends LitElement {
   }
 
   /**
-   * Mechanism to get property from webalias data using the normalized property name.
-   * @param  {String} prop  Property name to retrieve.
-   * @param  {Object} webalias  Webalias data.
-   * @return {Any}  Property value.
-   */
-  static getProp (prop, webalias = WebAlias.activeWebalias) {
-    const key = WebAlias.propsMap[prop]
-    return typeof key === 'function' ? key(WebAlias.activeWebalias) : WebAlias.activeWebalias[key]
-  }
-
-  /**
-   * LitElement styles property.
-   * @return  {Function}  CSS tagged template literal.
-   */
-  static get styles () {
-    return css`
-      :host([hidden]) {
-        display: none;
-      }
-      :host {
-        display: inline;
-      }
-    `
-  }
-
-  /**
    * Checks and parses the URL to grab the client ID, webalias, and environment WebAlias needs to
    * work. Then updates these global configuration properties.
    */
@@ -118,34 +71,36 @@ class WebAlias extends LitElement {
     }
     if (!host || !host.length) return
     config.env = host.slice(-1)[0]
-    if (config.env.includes('localhost')) config.env = 'dev'
+    if (config.env === 'localhost' || config.env === 'local') config.env = 'dev'
     if (config.env.includes('directscale')) config.env = config.env.replace('directscale', '')
     if (host.length > 1) config.webalias = host[0]
     if (host.length > 2) {
       config.client = host[1]
     }
 
-    WebAlias.initialized = true
     WebAlias.updateConfig(config)
   }
 
   /**
    * Updates the global client, webalias, and env properties.
-   * @param  {Object} config  Global configuration properties (client, webalias, env).
+   * @param  {Object}  config  Global configuration properties (client, webalias, env).
    */
   static updateConfig (config = {}) {
-    const allowableKeys = ['client', 'webalias', 'env']
+    const allowableKeys = ['client', 'webalias', 'env', 'sourceUrl']
     Object.keys(config).forEach(key => {
-      if (!allowableKeys.includes(key) || WebAlias.prototype[key] === config[key]) return
-      WebAlias.prototype[key] = config[key]
+      if (!allowableKeys.includes(key) || WebAlias[key] === config[key]) return
+      WebAlias[key] = config[key]
     })
+    if (!WebAlias.sourceUrl) {
+      WebAlias.sourceUrl = WebAlias.sourceUrl || `https://${WebAlias.webalias}.${WebAlias.client}.directscale${WebAlias.env}.com`
+    }
   }
 
   /**
-   * Normalizes WebAlias.activeWebalias.
-   * @return {Object}  Normalized WebAlias.activeWebalias.
+   * Normalizes WebAlias.user.
+   * @return {Object}  Normalized WebAlias.user.
    */
-  static normalize (webalias = WebAlias.activeWebalias) {
+  static normalize (webalias = WebAlias.user) {
     // Return the normalized webalias user data.
     return Object.keys(WebAlias.propsMap).reduce((data, prop) => {
       const key = WebAlias.propsMap[prop]
@@ -155,18 +110,49 @@ class WebAlias extends LitElement {
   }
 
   /**
-   * LitElement lifecycle. Called the first time this instance is updated.
-   * @param  {Map} changedProps  Map of changed properties.
+   * Instance constructor.
+   *
+   * @param  {Array}  args  Arguments
    */
-  firstUpdated (changedProps) {
-    this.updateWebalias()
+  constructor (...args) {
+    super(args)
+    if (!WebAlias.initialized && !WebAlias.disableUrlCheck) {
+      WebAlias.checkUrl()
+      WebAlias.initialized = true
+    } else if (WebAlias.disableUrlCheck) {
+      WebAlias.initialized = true
+    }
+    // Set default properties.
+    this.prop = this.getAttribute('prop')
+    this.display = this.getAttribute('display') || ''
+    this.before = this.getAttribute('before') || ''
+    this.after = this.getAttribute('after') || ''
+    // Create dom.
+    this.$ = {
+      styles: document.createElement('style')
+    }
+    // Flag as initialized.
+    this.__initialized = true
   }
 
   /**
-   * LitElement lifecycle. Called each time this instance is updated.
-   * @param  {Map} changedProps  Map of changed properties.
+   * Lifecycle callback: When a DOM/HTML attribute changes.
+   *
+   * @param   {string}  name      Attribute name that changed.
+   * @param   {string}  oldValue  Previous attribute value.
+   * @param   {string}  value     New attribute value.
    */
-  updated (changedProps) {
+  attributeChangedCallback (name, oldValue, value) {
+    if (!this.__initialized) return
+    if (oldValue === value) return
+    this[name] = value
+    this.render()
+  }
+
+  /**
+   * Lifecycle callback: When an instance is connected to the DOM (all elements/attributes exist).
+   */
+  connectedCallback () {
     this.updateWebalias()
   }
 
@@ -174,35 +160,40 @@ class WebAlias extends LitElement {
    * Fetch and update the webalias data from the DirectScale API.
    */
   updateWebalias () {
-    if (!this.webalias || !this.client || !this.prop) {
-      this.content = ''
+    if (!WebAlias.webalias || !WebAlias.client || !this.prop) {
       return
     }
     // If fetch is already in progress, use it.
-    if (WebAlias.activeWebalias instanceof Promise) {
-      WebAlias.activeWebalias.then(() => this.updateContent())
+    if (WebAlias.user instanceof Promise) {
+      WebAlias.user.then(() => this.render())
     // If cached data exists, use it.
-    } else if (WebAlias.activeWebalias) {
-      this.updateContent()
+    } else if (WebAlias.user) {
+      this.render()
     // If webalias exists in localStorage, use it (this offers a quicker UI update). Then fetch
     // latest webalias data in background and cache it to localStorage.
     } else {
       // First check local storage and update UI if correct webalias data already exists...
       if (window.localStorage.webalias) {
         const webalias = WebAlias.normalize(JSON.parse(window.localStorage.webalias))
-        if (webalias && webalias.webalias && webalias.webalias.toLowerCase() === this.webalias.toLowerCase()) {
-          WebAlias.activeWebalias = webalias
-          this.updateContent()
+        if (webalias && webalias.webalias && webalias.webalias.toLowerCase() === WebAlias.webalias.toLowerCase()) {
+          WebAlias.user = webalias
+          this.render()
         }
       }
       // Now fetch up-to-date data and update the UI.
       const promise = this.fetchWebalias().then(webalias => {
+        if (!webalias || !(webalias instanceof Object)) {
+          console.error('No user data found.', { webalias: WebAlias.webalias, client: WebAlias.client })
+          WebAlias.user = null
+          this.render()
+          return null
+        }
         window.localStorage.webalias = JSON.stringify(webalias)
-        WebAlias.activeWebalias = WebAlias.normalize(webalias)
-        this.updateContent()
+        WebAlias.user = WebAlias.normalize(webalias)
+        this.render()
         return webalias
       })
-      if (!WebAlias.activeWebalias) WebAlias.activeWebalias = promise
+      if (!WebAlias.user) WebAlias.user = promise
     }
   }
 
@@ -211,47 +202,38 @@ class WebAlias extends LitElement {
    * @return {Object}  Normalized webalias user data.
    */
   fetchWebalias () {
-    return fetch(`https://api2.directscale${this.env}.com/api/Repsite/GetCustomerSite?webAlias=${this.webalias}`, {
+    return fetch(`https://api2.directscale${WebAlias.env}.com/api/Repsite/GetCustomerSite?webAlias=${WebAlias.webalias}`, {
       headers: {
-        ApplicationUrl: `https://${this.webalias}.${this.client}.directscale${this.env}.com`
+        ApplicationUrl: WebAlias.sourceUrl
       }
     }).then(response => response.json())
   }
 
   /**
-   * Update this.content with the configured webalias data property.
-   */
-  updateContent () {
-    if (!WebAlias.activeWebalias || !WebAlias.activeWebalias[this.prop]) {
-      this.content = ''
-      return
-    }
-    this.content = WebAlias.activeWebalias[this.prop]
-  }
-
-  /**
-   * LitElement render. Called after going through the update lifecycle.
-   * @return {Function}  LitElement's html tag function.
+   * Render element's markup to the DOM.
+   *
+   * @return  {html}  DOM element and children.
    */
   render () {
-    if (!this.webalias || !this.client || !this.prop || !WebAlias.activeWebalias) {
-      this.content = ''
+    if (!this.__initialized || !WebAlias.webalias || !WebAlias.client || !this.prop || !WebAlias.user || !WebAlias.user[this.prop] || WebAlias.user instanceof Promise) {
       return
     }
     let styles = ''
     if (this.display) {
-      styles = html`<style>:host { display: ${unsafeCSS(this.display)}; }</style>`
+      styles = hyper(this.$.styles)`:host { display: ${this.display}; color: red; }`
     }
-    return html`${styles}${this.prefix}${this.content}${this.suffix}`
+    return hyper(this.root)`${styles}${this.before}${WebAlias.user[this.prop]}${this.after}`
   }
 }
 
 // WebAlias prototype and class-side properties.
 WebAlias.initialized = false
-WebAlias.activeWebalias = undefined
-WebAlias.prototype.client = ''
-WebAlias.prototype.webalias = ''
-WebAlias.prototype.env = 'dev'
+WebAlias.user = undefined
+WebAlias.disableUrlCheck = false
+WebAlias.client = ''
+WebAlias.webalias = ''
+WebAlias.env = 'dev'
+WebAlias.sourceUrl = undefined
 
 // -------------------------------------------------------------------------------------------------
 // Exports.

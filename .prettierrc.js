@@ -14,7 +14,8 @@ module.exports = {
   overrides: [{
     files: '*.md',
     options: {
-      tabWidth: 4
+      tabWidth: 4,
+      printWidth: 80
     }
   }]
 }

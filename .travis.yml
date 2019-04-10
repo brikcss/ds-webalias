@@ -5,8 +5,7 @@ node_js: '9'
 
 cache:
   bundler: true
-  # directories:
-  #   - node_modules
+  npm: true
 
 notifications:
   email:
@@ -14,14 +13,29 @@ notifications:
 
 env: NODE_ENV=test
 
-# Publish to NPM only.
 before_script: npm prune -d
-script: npm test -d && npm run cov -d
+script: npm test -d
+
 deploy:
-  provider: npm
-  email: thezimmee@gmail.com
-  api_key: $NPM_TOKEN
-  skip_cleanup: true
+  # Publish to NPM.
+  - provider: npm
+    email: thezimmee@gmail.com
+    api_key: $NPM_TOKEN
+    skip_cleanup: true
+  # Release to GitHub
+  - provider: releases
+    api_key: $GITHUB_TOKEN
+    draft: true
+    file_glob: true
+    file:
+      - examples/**/*
+      - dist/**/*
+      - docs/**/*
+      - README.md
+      - LICENSE.md
+      - CHANGELOG.md
+    skip_cleanup: true
+
 # Semantic release to NPM and GitHub.
 # deploy:
 #   provider: script
@@ -29,7 +43,6 @@ deploy:
 #   script:
 #     - npx semantic-release
 
-# Publish to NPM only.
 branches:
   only:
     - master

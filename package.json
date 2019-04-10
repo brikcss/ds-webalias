@@ -1,5 +1,5 @@
 {
-  "name": "@brikcss/webalias",
+  "name": "@brikcss/ds-webalias",
   "version": "0.1.0",
   "description": "A DirectScale, Inc. module which turns any site into a replicated site, using the DirectScale webalias.",
   "dependencies": {
@@ -26,7 +26,7 @@
   "scripts": {
     "start": "npm run watch",
     "pretest": "npm run build",
-    "test": "npx standard && jest --coverage",
+    "test": "npx standard && jest --coverage --passWithNoTests",
     "cov": "cat coverage/lcov.info | coveralls && cat coverage/lcov.info | codacy-coverage",
     "build": "npx rollup --config=.rolluprc.js",
     "watch": "npm run build -- --watch & npm run serve",

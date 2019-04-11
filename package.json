@@ -1,6 +1,6 @@
 {
   "name": "@brikcss/ds-webalias",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A DirectScale, Inc. module which turns any site into a replicated site, using the DirectScale webalias.",
   "dependencies": {
     "@brikcss/element": "^0.1.4",

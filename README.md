@@ -31,7 +31,7 @@
 
 ## About
 
-<strong><mark>\[ IMPORTANT \]: Brikcss follows semantic versioning. Since this package is currently at major version zero, <a href="https://semver.org/#spec-item-4" target="_blank">"anything may change at any time", and it "should not be considered stable"</a>.</mark></strong>
+<strong>\[ IMPORTANT \]: Brikcss follows semantic versioning. Since this package is currently at major version zero, <a href="https://semver.org/#spec-item-4" target="_blank">"anything may change at any time", and it "should not be considered stable"</a>.</strong>
 
 This webalias module connects with the DirectScale, Inc. webalias API to help turn any website into a replicated solution. The plugin can either check the URL to auto-detect the webalias and client/company, or they can be manually configured.
 

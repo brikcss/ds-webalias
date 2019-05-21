@@ -68,7 +68,7 @@ _Note: File paths are written for NPM installs. If you use the GitHub release, m
 
 ## Quick Start
 
-Get up to speed in less than 5 minutes:
+Build your component in less than 5 minutes:
 
 1. [Include Web Components polyfills](https://github.com/brikcss/element/blob/master/docs/web-components-polyfills.md).
 
@@ -98,9 +98,9 @@ Get up to speed in less than 5 minutes:
     console.log(WebAlias.user.name); // John Doe
     ```
 
-4. Tada! It should work!
+4. Tada! Check out [the examples](./examples) if you run into issues.
 
-    _Important: While the Browser ESM bundle works great for rapid development and prototyping, there is a limit to its browser support. Once your app is ready for production, it is recommended to replace the Browser ESM with the Vanilla ESM and [include it to your build](https://github.com/brikcss/element/blob/master/docs/including-brikcss-modules.md)._
+    _Important: While the Browser ESM bundle works great for rapid development and prototyping, or if you only need to support modern browsers. For greater browser support, once your app is ready for production, replace the Browser ESM with [the Vanilla ESM (or UMD bundle)](https://github.com/brikcss/element/blob/master/docs/including-brikcss-modules.md)._
 
 ## API
 
@@ -122,17 +122,17 @@ _Type: `String` Default: `undefined` **(required)**_
 
 Environment to use. Can be `dev`, `stage`, or `''` (live). This determines which database is checked.
 
-### `WebAlias.sourceUrl`
+### `WebAlias.urlCheck`
 
-_Type: `String` Default: `https://${WebAlias.webalias}.${WebAlias.client}.directscale${WebAlias.env}.com`_
+_Type: `String[]|Boolean` Default: `['webalias']`_
 
-Passed in the headers (as the `ApplicationUrl` parameter) to the webalias API.
+This value determines if and how WebAlias will automatically pull data from the URL. This is a String Array, with possible values of `webalias`, `client`, and `env`. For each property listed, WebAlias will automatically fetch that data property from the URL. By default, only the `webalias` property is checked for. Setting this value to `true` will check all three properties.
 
-### `WebAlias.disableUrlCheck`
+_Note: For each property listed, WebAlias calls `WebAlias[`get\${propertyName}FromUrl`](host)`. This means, if you want to customize how WebAlias gets each piece of data, simply override the corresponding method. For example, to override how WebAlias gets the `webalias` property from the URL:_
 
-_Type: `Boolean` Default: `false`_
-
-Set `true` to disable checking the URL for `webalias` and `client`. Use this to manually set the `webalias` and `client`.
+```js
+WebAlias.getWebaliasFromUrl = function (host) {...}
+```
 
 ### `WebAlias.user`
 
@@ -170,6 +170,12 @@ The webalias user, returned by DirectScale's replicated site webalias API. Its p
 -   `backOfficeId` _{String}_: User's back office ID.
 -   `customerTypeId` _{String}_: User's customer type ID.
 -   `status` _{String}_: User status.
+
+### `WebAlias.sourceUrl`
+
+_Type: `String|Function` Default: `https://${WebAlias.webalias}.${WebAlias.client}.directscale${WebAlias.env}.com`_
+
+Passed in the headers (as the `ApplicationUrl` parameter) to the webalias API.
 
 ## License
 

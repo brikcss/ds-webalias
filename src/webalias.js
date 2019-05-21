@@ -63,22 +63,53 @@ class WebAlias extends BrikElement {
    * work. Then updates these global configuration properties.
    */
   static checkUrl () {
-    const host = window.location.hostname.split('.').filter(segment => segment !== 'www')
-    const config = {
-      webalias: null,
-      client: null,
-      env: null
-    }
+    const host = window.location.hostname
+    const config = {}
     if (!host || !host.length) return
-    config.env = host.slice(-1)[0]
-    if (config.env === 'localhost' || config.env === 'local') config.env = 'dev'
-    if (config.env.includes('directscale')) config.env = config.env.replace('directscale', '')
-    if (host.length > 1) config.webalias = host[0]
-    if (host.length > 2) {
-      config.client = host[1]
-    }
 
+    // Iterate through keys in urlCheck to get those configurations from the url.
+    if (WebAlias.urlCheck === true) WebAlias.urlCheck = ['webalias', 'client', 'env']
+    WebAlias.urlCheck.forEach(key => {
+      config[key] = WebAlias[`get${key.charAt(0).toUpperCase() + key.slice(1).toLowerCase()}FromUrl`](host)
+    })
+
+    // Update the configuration.
     WebAlias.updateConfig(config)
+  }
+
+  /**
+   * Gets the webalias from the url.
+   *
+   * @param {String} host  The hostname from window.location.
+   * @return {string}  The webalias from the url.
+   */
+  static getWebaliasFromUrl (host) {
+    if (host === undefined) host = window.location.hostname
+    return host.split('.').filter(segment => segment !== 'www')[0]
+  }
+
+  /**
+   * Get the client name from the url.
+   *
+   * @param {String} host  The hostname from window.location.
+   * @return {String}  The client name from the url.
+   */
+  static getClientFromUrl (host) {
+    if (host === undefined) host = window.location.hostname
+    return host.split('.').filter(segment => segment !== 'www')[1]
+  }
+
+  /**
+   * Get the environment from the url.
+   *
+   * @param {String} host  The Hostname from window.location.
+   * @return {String}  The environment.
+   */
+  static getEnvFromUrl (host) {
+    if (host === undefined) host = window.location.hostname
+    if (host.includes('directscale.com')) return ''
+    if (host.includes('directscalestage.com')) return 'stage'
+    return 'dev'
   }
 
   /**
@@ -91,9 +122,6 @@ class WebAlias extends BrikElement {
       if (!allowableKeys.includes(key) || WebAlias[key] === config[key]) return
       WebAlias[key] = config[key]
     })
-    if (!WebAlias.sourceUrl) {
-      WebAlias.sourceUrl = WebAlias.sourceUrl || `https://${WebAlias.webalias}.${WebAlias.client}.directscale${WebAlias.env}.com`
-    }
   }
 
   /**
@@ -116,10 +144,10 @@ class WebAlias extends BrikElement {
    */
   constructor (...args) {
     super(args)
-    if (!WebAlias.initialized && !WebAlias.disableUrlCheck) {
-      WebAlias.checkUrl()
+    if (!WebAlias.initialized && !WebAlias.urlCheck) {
       WebAlias.initialized = true
-    } else if (WebAlias.disableUrlCheck) {
+    } else if (WebAlias.urlCheck && WebAlias.urlCheck.length) {
+      WebAlias.checkUrl()
       WebAlias.initialized = true
     }
     // Set default properties.
@@ -204,7 +232,7 @@ class WebAlias extends BrikElement {
   fetchWebalias () {
     return fetch(`https://api2.directscale${WebAlias.env}.com/api/Repsite/GetCustomerSite?webAlias=${WebAlias.webalias}`, {
       headers: {
-        ApplicationUrl: WebAlias.sourceUrl
+        ApplicationUrl: (typeof WebAlias.sourceUrl === 'function' ? WebAlias.sourceUrl() : WebAlias.sourceUrl) || `https://${WebAlias.webalias}.${WebAlias.client}.directscale${WebAlias.env}.com`
       }
     }).then(response => response.json())
   }
@@ -229,7 +257,7 @@ class WebAlias extends BrikElement {
 // WebAlias prototype and class-side properties.
 WebAlias.initialized = false
 WebAlias.user = undefined
-WebAlias.disableUrlCheck = false
+WebAlias.urlCheck = ['webalias']
 WebAlias.client = ''
 WebAlias.webalias = ''
 WebAlias.env = 'dev'

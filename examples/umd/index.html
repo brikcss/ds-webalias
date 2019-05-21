@@ -24,28 +24,37 @@
 </head>
 
 <body>
+  <h2>
+    <pre><code>&lt;web-alias prop="${propertyName}"&gt;&lt;/web-alias&gt;</code></pre>
+  </h2>
   <div class="container">
-    <web-alias prop="name" prefix="Hello, " suffix="!"></web-alias>
+    <web-alias prop="name" before="Hello, " after="!"></web-alias>
     <web-alias prop="image" display="block"></web-alias>
     <web-alias prop="email"></web-alias>
     <web-alias prop="phone"></web-alias>
-    <div>
-      <web-alias prop="city" suffix=", "></web-alias><web-alias prop="state"></web-alias>
-    </div>
+    <div><web-alias prop="city" after=", "></web-alias><web-alias prop="state"></web-alias></div>
     <web-alias prop="company"></web-alias>
   </div>
 
+  <!-- <h2>
+    <pre><code>&lt;a is="web-alias-link" prop="${propertyName}"&gt;&lt;/a&gt;</code></pre>
+  </h2>
+  <div class="container">
+    <a is="web-alias" prop="email">I'm a link.</a>
+  </div> -->
+
   <!-- 1. Include custom elements polyfill. -->
-  <script src="../../node_modules/document-register-element/build/document-register-element.js"></script>
+  <script src="//unpkg.com/@webcomponents/webcomponentsjs@^2/webcomponents-loader.js"></script>
+  <!-- <script src="../../node_modules/document-register-element/build/document-register-element.js"></script> -->
   <!-- 2. Include dependencies modules for modern browsers. -->
   <script type="module" src="../../node_modules/@brikcss/element/dist/umd/brik-element.js"></script>
-  <script type="module" src="../../../lib/hyperhtml.js"></script>
+  <script type="module" src="../../dist/umd/hyperhtml.js"></script>
   <script type="module" src="../../dist/umd/webalias.js"></script>
   <!-- 3. Include dependencies as nomodule for legacy browser support. -->
   <script nomodule src="../../node_modules/@brikcss/element/dist/umd/brik-element.legacy.js"></script>
-  <script nomodule src="../../../lib/hyperhtml.legacy.js"></script>
+  <script nomodule src="../../dist/umd/hyperhtml.legacy.js"></script>
   <script nomodule src="../../dist/umd/webalias.legacy.js"></script>
-  <!-- 4. Include app.js. -->
+  <!-- 4. Include app.js (must be last). -->
   <script src="app.js" defer></script>
 </body>
 </html>

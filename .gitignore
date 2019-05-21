@@ -16,6 +16,7 @@ node_modules
 /browser
 /module
 /umd
+/esm
 /.temp
 /.shots/current
 /package

@@ -1,10 +1,10 @@
 {
   "name": "@brikcss/ds-webalias",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "A DirectScale, Inc. module which turns any site into a replicated site, using the DirectScale webalias.",
   "dependencies": {
     "@brikcss/element": "^0.1.5",
-    "hyperhtml": "^2.27.0"
+    "lighterhtml": "^0.12.0"
   },
   "devDependencies": {
     "@babel/plugin-transform-runtime": "^7.4.4",

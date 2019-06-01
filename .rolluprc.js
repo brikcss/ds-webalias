@@ -23,8 +23,8 @@ export default configGen.create([
     }
   }, {
     type: 'dependency',
-    id: 'hyperhtml',
-    input: 'node_modules/hyperhtml/esm'
+    id: 'lighterhtml',
+    input: 'lighterhtml'
   }, {
     type: 'dependency',
     id: 'element',
@@ -32,11 +32,12 @@ export default configGen.create([
   }
 ], {
   umd (output, config) {
+    config.context = 'window || global'
     output.exports = 'named'
-    output.name = config.id === 'hyperhtml' ? 'brikcss.html' : 'brikcss.elements'
+    output.name = config.id === 'lighterhtml' ? 'brikcss.lighterhtml' : 'brikcss.elements'
     output.globals = {
       '@brikcss/element': 'brikcss',
-      hyperhtml: 'brikcss.html'
+      lighterhtml: 'brikcss.lighterhtml'
     }
     return output
   },

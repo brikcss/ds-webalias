@@ -5,7 +5,7 @@
 //
 
 import BrikElement from '@brikcss/element'
-import { hyper } from 'hyperhtml'
+import { render, html } from 'lighterhtml'
 
 // -------------------------------------------------------------------------------------------------
 // WebAlias.
@@ -24,12 +24,12 @@ class WebAlias extends BrikElement {
    *     returned webalias data.
    */
   static get propsMap () {
-    return {
+    return this._propsMap || (this._propsMap = {
       first: 'FirstName',
       last: 'LastName',
-      name: (data) => data.FirstName + ' ' + data.LastName,
+      name: () => this.user.first + ' ' + this.user.last,
       email: 'Email',
-      phone: (data) => data.Phone1,
+      phone: () => this.user.phone1,
       phone1: 'Phone1',
       phone2: 'Phone2',
       city: 'City',
@@ -39,23 +39,32 @@ class WebAlias extends BrikElement {
       company: 'Company',
       language: 'MemberLanguage',
       imageUrl: 'ImageUrl',
-      image: (data) => () => hyper()([`<img src="${data.ImageUrl}" alt="${WebAlias.propsMap.name(data)}" />`]),
+      image: () => html`<img src="${this.user.imageUrl}" alt="${this.user.name()}" />`,
       imageData: 'ImageData',
       facebook: 'Facebook',
+      facebookLink: () => html`<a href="${this.user.facebook}"><slot>Facebook</slot></a>`,
       twitter: 'Twitter',
+      twitterLink: () => html`<a href="${this.user.twitter}"><slot>Twitter</slot></a>`,
       pinterest: 'Pinterest',
+      pinterestLink: () => html`<a href="${this.user.pinterest}"><slot>Pinterest</slot></a>`,
       youTube: 'YouTube',
+      youTubeLink: () => html`<a href="${this.user.youTube}"><slot>YouTube</slot></a>`,
       linkedIn: 'Linkdin',
+      linkedInLink: () => html`<a href="${this.user.linkedIn}"><slot>LinkedIn</slot></a>`,
       enrollmentUrl: 'EnrollmentUrl',
+      enrollmentLink: () => html`<a href="${this.user.enrollmentUrl}"><slot>Enroll now</slot></a>`,
       officeUrl: 'OfficeUrl',
+      officeLink: () => html`<a href="${this.user.officeUrl}"><slot>Back Office</slot></a>`,
       shoppingUrl: 'ShoppingLink',
+      shoppingLink: () => html`<a href="${this.user.shoppingLink}"><slot>Shop now</slot></a>`,
       replicatedSiteUrl: 'ReplicatedSiteUrl',
+      replicatedLink: () => html`<a href="${this.user.replicatedSiteUrl}"><slot>Go to marketing site</slot></a>`,
       webalias: 'WebAlias',
       customerId: 'CustomerID',
       backOfficeId: 'BackOfficeID',
       customerTypeId: 'CustomerTypeId',
       status: 'Status'
-    }
+    })
   }
 
   /**
@@ -132,7 +141,7 @@ class WebAlias extends BrikElement {
     // Return the normalized webalias user data.
     return Object.keys(WebAlias.propsMap).reduce((data, prop) => {
       const key = WebAlias.propsMap[prop]
-      data[prop] = typeof key === 'function' ? key(webalias) : webalias[key]
+      data[prop] = typeof key === 'function' ? key.bind(WebAlias) : webalias[key]
       return data
     }, {})
   }
@@ -150,6 +159,10 @@ class WebAlias extends BrikElement {
       WebAlias.checkUrl()
       WebAlias.initialized = true
     }
+    // Create shadow dom.
+    this.root = this.attachShadow({ mode: 'open' })
+    // first render
+    this.render()
     // Set default properties.
     this.prop = this.getAttribute('prop')
     this.display = this.getAttribute('display') || ''
@@ -248,9 +261,9 @@ class WebAlias extends BrikElement {
     }
     let styles = ''
     if (this.display) {
-      styles = hyper(this.$.styles)`:host { display: ${this.display}; color: red; }`
+      styles = render(this.$.styles, () => html`:host { display: ${this.display}; color: red; }`)
     }
-    return hyper(this.root)`${styles}${this.before}${WebAlias.user[this.prop]}${this.after}`
+    return render(this.root, () => html`${styles}${this.before}${typeof WebAlias.user[this.prop] === 'function' ? WebAlias.user[this.prop]() : WebAlias.user[this.prop]}${this.after}`)
   }
 }
 

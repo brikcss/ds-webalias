@@ -34,6 +34,12 @@
     <web-alias prop="phone"></web-alias>
     <div><web-alias prop="city" after=", "></web-alias><web-alias prop="state"></web-alias></div>
     <web-alias prop="company"></web-alias>
+    <web-alias prop="enrollmentLink" title="Become a distributor">Become a distributor</web-alias>
+    <web-alias prop="facebookLink" title="See my Facebook page">
+      See my
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26 26" width="26" height="26"><path d="M21.125 0H4.875A4.876 4.876 0 0 0 0 4.875v16.25A4.876 4.876 0 0 0 4.875 26h16.25A4.876 4.876 0 0 0 26 21.125V4.875A4.876 4.876 0 0 0 21.125 0zm-.66 14.004H18.03v9.004h-4.06v-9.004h-1.58v-3.035h1.578V9.035c0-2.531 1.05-4.035 4.039-4.035h3.023v3.023h-1.758c-1.16 0-1.238.43-1.238 1.243l-.004 1.703h2.766z"/></svg>
+      Facebook page
+    </web-alias>
   </div>
 
   <!-- <h2>
@@ -48,11 +54,11 @@
   <!-- <script src="../../node_modules/document-register-element/build/document-register-element.js"></script> -->
   <!-- 2. Include dependencies modules for modern browsers. -->
   <script type="module" src="../../node_modules/@brikcss/element/dist/umd/brik-element.js"></script>
-  <script type="module" src="../../dist/umd/hyperhtml.js"></script>
+  <script type="module" src="../../dist/umd/lighterhtml.js"></script>
   <script type="module" src="../../dist/umd/webalias.js"></script>
   <!-- 3. Include dependencies as nomodule for legacy browser support. -->
   <script nomodule src="../../node_modules/@brikcss/element/dist/umd/brik-element.legacy.js"></script>
-  <script nomodule src="../../dist/umd/hyperhtml.legacy.js"></script>
+  <script nomodule src="../../dist/umd/lighterhtml.legacy.js"></script>
   <script nomodule src="../../dist/umd/webalias.legacy.js"></script>
   <!-- 4. Include app.js (must be last). -->
   <script src="app.js" defer></script>

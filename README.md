@@ -138,7 +138,7 @@ WebAlias.getWebaliasFromUrl = function (host) {...}
 
 _Type: `Object` Default: `undefined`_
 
-The webalias user, returned by DirectScale's replicated site webalias API. Its properties include:
+The webalias user data. The `WebAlias.webalias`, `WebAlias.client`, and `WebAlias.env` properties are used to fetch webalias data from DirectScale's replicated site webalias API, and then normalizing it as follows:
 
 -   `first` _{String}_: First name.
 -   `last` _{String}_: Last name.
@@ -157,19 +157,55 @@ The webalias user, returned by DirectScale's replicated site webalias API. Its p
 -   `image` _{String}_: User's profile `<img />`.
 -   `imageData` _{String}_: Image data.
 -   `facebook` _{String}_: Facebook handle.
+-   `facebookLink` _{String}_: Facebook anchor tag hyperlink.
 -   `twitter` _{String}_: Twitter handle.
+-   `twitterLink` _{String}_: Twitter anchor tag hyperlink.
 -   `pinterest` _{String}_: Pinterest handle.
+-   `pinterestLink` _{String}_: Pinterest anchor tag hyperlink.
 -   `youTube` _{String}_: YouTube handle.
+-   `youTubeLink` _{String}_: YouTube anchor tag hyperlink.
 -   `linkedIn` _{String}_: LinkedIn handle.
+-   `linkedInLink` _{String}_: LinkedIn anchor tag hyperlink.
 -   `enrollmentUrl` _{String}_: URL to user's enrollment site.
+-   `enrollmentLink` _{String}_: Enrollment anchor tag hyperlink.
 -   `officeUrl` _{String}_: URL to user's back office.
+-   `officeLink` _{String}_: Back office anchor tag hyperlink.
 -   `shoppingUrl` _{String}_: URL to user's shopping site.
+-   `shoppingLink` _{String}_: Shopping cart anchor tag hyperlink.
 -   `replicatedSiteUrl` _{String}_: URL to user's replicated site.
+-   `replicatedSiteLink` _{String}_: Replicated/marketing site anchor tag hyperlink.
 -   `webalias` _{String}_: User's webalias.
 -   `customerId` _{String}_: User's customer ID.
 -   `backOfficeId` _{String}_: User's back office ID.
 -   `customerTypeId` _{String}_: User's customer type ID.
 -   `status` _{String}_: User status.
+
+#### Creating or modifying webalias properties
+
+You can modify any of these webalias properties, or create your own by doing the following:
+
+```js
+// Create a custom webalias property.
+WebAlias.propsMap.customProp = function() {
+    return `Custom property for ${this.user.name()}!`;
+};
+// Modify an existing webalias property.
+WebAlias.propsMap.name = function() {
+    return `${this.user.last}, ${this.user.first}`;
+};
+```
+
+These are used in the markup as usual:
+
+```html
+<web-alias prop="customProp"></web-alias>
+```
+
+which, for the user "John Doe", will display the following in the UI:
+
+```html
+Custom property for Doe, John!
+```
 
 ### `WebAlias.sourceUrl`
 

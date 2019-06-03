@@ -16,25 +16,20 @@ import configGen from '@brikcss/rollup-config-generator'
 export default configGen.create([
   {
     type: 'browser',
-    id: 'webalias',
     input: 'src/webalias.js',
     output: {
       banner: configGen.createBanner()
     }
   }, {
     type: 'dependency',
-    id: 'lighterhtml',
+    pkg: require('./node_modules/lighterhtml/package.json'),
     input: 'lighterhtml'
-  }, {
-    type: 'dependency',
-    id: 'element',
-    input: 'node_modules/@brikcss/element/dist/esm/brik-element.js'
   }
 ], {
   umd (output, config) {
     config.context = 'window || global'
     output.exports = 'named'
-    output.name = config.id === 'lighterhtml' ? 'brikcss.lighterhtml' : 'brikcss.elements'
+    output.name = config.pkg.name === 'lighterhtml' ? 'brikcss.lighterhtml' : 'brikcss.elements'
     output.globals = {
       '@brikcss/element': 'brikcss',
       lighterhtml: 'brikcss.lighterhtml'
@@ -42,6 +37,9 @@ export default configGen.create([
     return output
   },
   'esm:modern': {
-    paths: (id) => `./${id.includes('/') ? id.split('/')[1] : id}.js`
+    paths: (id) => {
+      if (id === '@brikcss/element') return '../../node_modules/@brikcss/element/dist/esm/brik-element.js'
+      return `./${id.includes('/') ? id.split('/')[1] : id}.js`
+    }
   }
 })

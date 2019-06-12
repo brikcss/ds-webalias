@@ -13,7 +13,7 @@ import { render, html } from 'lighterhtml'
 
 class WebAlias extends BrikElement {
   static get observedAttributes () {
-    return ['prop', 'before', 'after', 'display']
+    return ['prop', 'before', 'after']
   }
 
   /**
@@ -39,32 +39,42 @@ class WebAlias extends BrikElement {
       company: 'Company',
       language: 'MemberLanguage',
       imageUrl: 'ImageUrl',
-      image: () => html`<img src="${this.user.imageUrl}" alt="${this.user.name()}" />`,
+      image: (r) => r`<img src="${this.user.imageUrl}" alt="${this.user.name()}" />`,
       imageData: 'ImageData',
       facebook: 'Facebook',
-      facebookLink: () => html`<a href="${this.user.facebook}"><slot>Facebook</slot></a>`,
+      facebookLink: (r) => r`<a href="${this.user.facebook}"><slot>Facebook</slot></a>`,
       twitter: 'Twitter',
-      twitterLink: () => html`<a href="${this.user.twitter}"><slot>Twitter</slot></a>`,
+      twitterLink: (r) => r`<a href="${this.user.twitter}"><slot>Twitter</slot></a>`,
       pinterest: 'Pinterest',
-      pinterestLink: () => html`<a href="${this.user.pinterest}"><slot>Pinterest</slot></a>`,
+      pinterestLink: (r) => r`<a href="${this.user.pinterest}"><slot>Pinterest</slot></a>`,
       youTube: 'YouTube',
-      youTubeLink: () => html`<a href="${this.user.youTube}"><slot>YouTube</slot></a>`,
+      youTubeLink: (r) => r`<a href="${this.user.youTube}"><slot>YouTube</slot></a>`,
       linkedIn: 'Linkdin',
-      linkedInLink: () => html`<a href="${this.user.linkedIn}"><slot>LinkedIn</slot></a>`,
+      linkedInLink: (r) => r`<a href="${this.user.linkedIn}"><slot>LinkedIn</slot></a>`,
       enrollmentUrl: 'EnrollmentUrl',
-      enrollmentLink: () => html`<a href="${this.user.enrollmentUrl}"><slot>Enroll now</slot></a>`,
+      enrollmentLink: (r) => r`<a href="${this.user.enrollmentUrl}"><slot>Enroll now</slot></a>`,
       officeUrl: 'OfficeUrl',
-      officeLink: () => html`<a href="${this.user.officeUrl}"><slot>Back Office</slot></a>`,
+      officeLink: (r) => r`<a href="${this.user.officeUrl}"><slot>Back Office</slot></a>`,
       shoppingUrl: 'ShoppingLink',
-      shoppingLink: () => html`<a href="${this.user.shoppingLink}"><slot>Shop now</slot></a>`,
+      shoppingLink: (r) => r`<a href="${this.user.shoppingLink}"><slot>Shop now</slot></a>`,
       replicatedSiteUrl: 'ReplicatedSiteUrl',
-      replicatedLink: () => html`<a href="${this.user.replicatedSiteUrl}"><slot>Go to marketing site</slot></a>`,
+      replicatedLink: (r) => r`<a href="${this.user.replicatedSiteUrl}"><slot>Go to marketing site</slot></a>`,
       webalias: 'WebAlias',
       customerId: 'CustomerID',
       backOfficeId: 'BackOfficeID',
       customerTypeId: 'CustomerTypeId',
       status: 'Status'
     })
+  }
+
+  /**
+   * Properties from propsMap that should apply shadow DOM (since they use <slot />s). For props
+   * included in this list, shadow DOM will be created.
+   *
+   * @return {Array}  Array of property names from propsMap.
+   */
+  static get shadowProps () {
+    return this._shadowProps || (this._shadowProps = ['facebookLink', 'twitterLink', 'pinterestLink', 'youTubeLink', 'linkedInLink', 'enrollmentLink', 'officeLink', 'shoppingLink', 'replicatedLink'])
   }
 
   /**
@@ -159,18 +169,15 @@ class WebAlias extends BrikElement {
       WebAlias.checkUrl()
       WebAlias.initialized = true
     }
-    // Create shadow dom.
-    this.root = this.attachShadow({ mode: 'open' })
     // first render
     this.render()
     // Set default properties.
     this.prop = this.getAttribute('prop')
-    this.display = this.getAttribute('display') || ''
     this.before = this.getAttribute('before') || ''
     this.after = this.getAttribute('after') || ''
-    // Create dom.
-    this.$ = {
-      styles: document.createElement('style')
+    // Create shadow dom.
+    if (WebAlias.shadowProps.includes(this.prop)) {
+      this.root = this.attachShadow({ mode: 'open' })
     }
     // Flag as initialized.
     this.__initialized = true
@@ -259,11 +266,9 @@ class WebAlias extends BrikElement {
     if (!this.__initialized || !WebAlias.webalias || !WebAlias.client || !this.prop || !WebAlias.user || !WebAlias.user[this.prop] || WebAlias.user instanceof Promise) {
       return
     }
-    let styles = ''
-    if (this.display) {
-      styles = render(this.$.styles, () => html`:host { display: ${this.display}; color: red; }`)
-    }
-    return render(this.root, () => html`${styles}${this.before}${typeof WebAlias.user[this.prop] === 'function' ? WebAlias.user[this.prop]() : WebAlias.user[this.prop]}${this.after}`)
+    const value = WebAlias.user[this.prop]
+    return render(this.root, () => html`
+      ${this.before}${typeof value === 'function' ? value(html) : value}${this.after}`)
   }
 }
 

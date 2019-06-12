@@ -102,6 +102,28 @@ Build your component in less than 5 minutes:
 
     _Important: While the Browser ESM bundle works great for rapid development and prototyping, or if you only need to support modern browsers. For greater browser support, once your app is ready for production, replace the Browser ESM with [the Vanilla ESM (or UMD bundle)](https://github.com/brikcss/element/blob/master/docs/including-brikcss-modules.md)._
 
+## WebAlias element attributes
+
+The `web-alias` HTML element can have the following attributes:
+
+### `prop`
+
+_Type: `String` **(required)**_
+
+Indicates the WebAlias property (from `WebAlias.propsMap`) to use.
+
+### `before`
+
+_Type: `String`_
+
+String to insert before the webalias property.
+
+### `after`
+
+_Type: `String`_
+
+String to insert after the webalias property.
+
 ## API
 
 ### `WebAlias.webalias`
@@ -180,32 +202,49 @@ The webalias user data. The `WebAlias.webalias`, `WebAlias.client`, and `WebAlia
 -   `customerTypeId` _{String}_: User's customer type ID.
 -   `status` _{String}_: User status.
 
-#### Creating or modifying webalias properties
+### `WebAlias.propsMap`
 
-You can modify any of these webalias properties, or create your own by doing the following:
+_Type: `Object` Default: (see source)_
+
+`WebAlias.propsMap` maps out how `WebAlias.user` values are created. You can create new `WebAlias.user` properties by adding a new property to `WebAlias.propsMap`, and you can modify how any existing `WebAlias.user[prop]` is created by overriding the corresponding property in `WebAlias.propsMap`.
+
+For example:
 
 ```js
-// Create a custom webalias property.
-WebAlias.propsMap.customProp = function() {
-    return `Custom property for ${this.user.name()}!`;
-};
 // Modify an existing webalias property.
 WebAlias.propsMap.name = function() {
     return `${this.user.last}, ${this.user.first}`;
+};
+// Create a custom webalias property.
+// NOTE: Since HTML markup is being created, use the render function provided (`r`) to correctly render your markup template.
+WebAlias.propsMap.avatar = function(r) {
+    return r`<img src="${this.user.imageUrl}" alt="User avatar for: ${
+        this.user.first
+    } ${this.user.last}" />`;
 };
 ```
 
 These are used in the markup as usual:
 
 ```html
-<web-alias prop="customProp"></web-alias>
+<web-alias prop="name"></web-alias> <web-alias prop="avatar"></web-alias>
 ```
 
-which, for the user "John Doe", will display the following in the UI:
+which, for the user "John Doe", will display the following in the UI (along with the user's image):
 
 ```html
 Custom property for Doe, John!
 ```
+
+### `WebAlias.shadowProps`
+
+_Type: `Array` Default: `['facebookLink', 'twitterLink', 'pinterestLink', 'youTubeLink', 'linkedInLink', 'enrollmentLink', 'officeLink', 'shoppingLink', 'replicatedLink']`_
+
+Some default properties in `WebAlias.propsMap` render with `<slot>` elements, which is part of the [Shadow DOM](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_shadow_DOM) specification. Shadow DOM encapsulates elements, but also prevents global CSS from being applied _to children_ elements.
+
+By default, Shadow DOM is not used, which allows global styles to be applied. However, if the `prop` attribute matches a value in `WebAlias.shadowProps`, shadow DOM will be created.
+
+_NOTE: You may always [override properties of `WebAlias.propsMap`](#webaliaspropsmap) to control any of this behavior._
 
 ### `WebAlias.sourceUrl`
 

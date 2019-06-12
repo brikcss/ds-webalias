@@ -20,6 +20,10 @@
       justify-content: center;
       margin-bottom: 40px;
     }
+    .container img {
+        border-radius: 50%;
+        border: 8px solid #ccc;
+      }
   </style>
 </head>
 
@@ -29,7 +33,7 @@
   </h2>
   <div class="container">
     <web-alias prop="name" before="Hello, " after="!"></web-alias>
-    <web-alias prop="image" display="block"></web-alias>
+    <web-alias prop="image"></web-alias>
     <web-alias prop="email"></web-alias>
     <web-alias prop="phone"></web-alias>
     <div><web-alias prop="city" after=", "></web-alias><web-alias prop="state"></web-alias></div>
